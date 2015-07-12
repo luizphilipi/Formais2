@@ -25,9 +25,9 @@ public class Formais2 {
         // sem recursao a esquerda
         String gramatica3 = "S -> A B C\n"
                 + "A -> a A | &\n"
-                + "B -> b B | A C d | &\n"
+                + "B -> b B | A C d\n"
                 + "C -> c C | &";
-        // sem recursao a esquerda e nao fatorada
+        // sem recursao a esquerda e nao fatorada (indiretamente)
         String gramatica4 = "S -> A B | B C\n"
                 + "A -> a A | &\n"
                 + "B -> b B | d\n"
@@ -40,9 +40,16 @@ public class Formais2 {
                 + "B -> b B | d\n"
                 + "C -> c C1\n"
                 + "C1 -> C | &";
-        GLC glc = new GLC(gramatica5);
-        System.out.println(glc.possuiRecursaoAEsquerda());
-        System.out.println(glc.fatorada());
+        // possui recursao a esquerda indireta
+        String gramatica6 = "S -> A a | a\n"
+                + "A -> S | b";
+        String gramatica7 = "S -> a S | a B | d S\n"
+                + "B -> b B | b";
+        GLC glc = new GLC(gramatica7);
+        System.out.println("First: " + glc.obterConjuntosFirst());
+        System.out.println("Follow: " + glc.obterConjuntosFollow());
+        System.out.println("Possui rec. esquerda: " + glc.possuiRecursaoAEsquerda());
+        System.out.println("Fatorada: " + glc.isFatorada());
     }
 
 }

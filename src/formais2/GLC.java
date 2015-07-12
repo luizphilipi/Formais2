@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +43,6 @@ public class GLC {
             simbolosNaoTerminais.add(simbolo);
             producoes.put(simbolo, producoesAUX);
         }
-        System.out.println(producoes);
     }
 
     public boolean possuiRecursaoAEsquerda() {
@@ -58,11 +58,16 @@ public class GLC {
             String[] simbolos = producao.split(" ");
             int i = 0;
             boolean contemSimbolo = true;
+            
+            if (simbolo.equals(simbolos[0])) {
+                System.out.println("Possui recursão a esquerda direta com o símbolo " + simbolo);
+                return true;
+            }
 
             while (contemSimbolo && i < simbolos.length && !isSimboloTerminal(simbolos[i])) {
 
                 if (simbolosVisitados.contains(simbolos[i])) {
-                    System.out.println("Recursao na produção " + simbolo + " -> " + producao + " com o símbolo " + simbolos[i]);
+                    System.out.println("Recursao indireta na produção " + simbolo + " -> " + producao + " com o símbolo " + simbolos[i]);
                     return true;
                 }
 
@@ -113,7 +118,9 @@ public class GLC {
     }
 
     private void adicionarSimbolosDiretos(Map<String, Set<String>> conjuntosFirst) {
-        insertHashKeys(conjuntosFirst, simbolosNaoTerminais);
+        for (String key : simbolosNaoTerminais) {
+            conjuntosFirst.put(key, new HashSet<String>());
+        }
 
         for (String simbolo : producoes.keySet()) {
             for (String producao : producoes.get(simbolo)) {
@@ -155,13 +162,7 @@ public class GLC {
         }
     }
 
-    private void insertHashKeys(Map<String, Set<String>> hash, Set<String> keys) {
-        for (String key : keys) {
-            hash.put(key, new HashSet<String>());
-        }
-    }
-
-    public boolean fatorada() {
+    public boolean isFatorada() {
         Map<String, Set<String>> conjuntosFirst = obterConjuntosFirst();
 
         for (String naoTerminal : simbolosNaoTerminais) {
@@ -195,6 +196,95 @@ public class GLC {
         Set<String> interseccao = new HashSet<String>(conjuntoFirstDaProducao);
         interseccao.retainAll(simbolosGerados);
         return interseccao.isEmpty();
+    }
+
+    public Map<String, Set<String>> obterConjuntosFollow() {
+        Map<String, Set<String>> conjuntosFirst = obterConjuntosFirst();
+        Map<String, Set<String>> conjuntosFollow = new HashMap<String, Set<String>>();
+
+        for (String key : simbolosNaoTerminais) {
+            conjuntosFollow.put(key, new HashSet<String>());
+        }
+
+        conjuntosFollow.get(simboloInicial).add("$");
+
+        adicionarFollowsDiretos(conjuntosFollow, conjuntosFirst);
+
+        adicionarFollowsIndiretos(conjuntosFollow, conjuntosFirst);
+
+        return conjuntosFollow;
+    }
+
+    private void adicionarFollowsDiretos(Map<String, Set<String>> conjuntosFollow, Map<String, Set<String>> conjuntosFirst) {
+        for (String simbolo : producoes.keySet()) {
+            for (String producao : producoes.get(simbolo)) {
+                String[] simbolos = producao.split(" ");
+
+                for (int i = 0; i < simbolos.length - 1; i++) {
+
+                    int j = i + 1;
+                    Set<String> firstDeJ;
+
+                    if (!isSimboloTerminal(simbolos[i])) {
+                        do {
+                            Set<String> followDeI = conjuntosFollow.get(simbolos[i]);
+                            firstDeJ = conjuntosFirst.get(simbolos[j]);
+                            followDeI.addAll(firstDeJ);
+                            followDeI.remove("&");
+                            j++;
+                        } while (firstDeJ.contains("&") && j < simbolos.length);
+                    }
+                }
+            }
+        }
+    }
+
+    private void adicionarFollowsIndiretos(Map<String, Set<String>> conjuntosFollow, Map<String, Set<String>> conjuntosFirst) {
+        Map<String, Set<String>> conjuntosFollowAnterior = conjuntosFollow;
+        boolean conjuntosIguais = false;
+
+        while (!conjuntosIguais) {
+
+            for (String simbolo : producoes.keySet()) {
+                for (String producao : producoes.get(simbolo)) {
+                    String[] simbolos = producao.split(" ");
+
+                    int i = simbolos.length - 1;
+                    boolean contemEpson = true;
+
+                    while (i >= 0 && !isSimboloTerminal(simbolos[i]) && contemEpson) {
+                        if (conjuntosFollow.containsKey(simbolos[i])) {
+                            conjuntosFollow.get(simbolos[i]).addAll(conjuntosFollow.get(simbolo));
+                            contemEpson = conjuntosFirst.get(simbolos[i]).contains("&");
+                        }
+                        i--;
+                    }
+                }
+            }
+            conjuntosIguais = conjuntosFollowAnterior.equals(conjuntosFollow);
+            conjuntosFollowAnterior = conjuntosFollow;
+        }
+    }
+
+    public boolean interseccaoEntreFirstEFollowVazia() {
+        Map<String, Set<String>> conjuntosFirst = obterConjuntosFirst();
+        Map<String, Set<String>> conjuntosFollow = obterConjuntosFollow();
+
+        for (String naoTerminal : simbolosNaoTerminais) {
+            Set<String> firstAuxiliar = conjuntosFirst.get(naoTerminal);
+            Set<String> followAuxiliar = conjuntosFollow.get(naoTerminal);
+            followAuxiliar.retainAll(firstAuxiliar);
+
+            if (firstAuxiliar.contains("&") && !followAuxiliar.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean verificarSeLL1() {
+        return isFatorada() && !possuiRecursaoAEsquerda(new HashSet<String>(), simboloInicial, obterConjuntosFirst(), new ArrayList<String>(simbolosNaoTerminais)) && interseccaoEntreFirstEFollowVazia();
     }
 
 }
