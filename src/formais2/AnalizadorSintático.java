@@ -34,10 +34,10 @@ public class AnalizadorSintático {
         try {
             arquivo = new FileWriter(new File("z.java"));
             arquivo.write(programa);
-            arquivo.close();          
+            arquivo.close();
             Runtime.getRuntime().exec("javac z.java");
             Runtime.getRuntime().exec("jar - cf z.jar z.java");
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -45,13 +45,15 @@ public class AnalizadorSintático {
         }
 
     }
-    public void reconhecer(String aReconhecer){
+
+    public void reconhecer(String aReconhecer) {
         try {
-            Runtime.getRuntime().exec("java z "+aReconhecer);
+            Runtime.getRuntime().exec("java z " + aReconhecer);
         } catch (IOException ex) {
             Logger.getLogger(AnalizadorSintático.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     public String gerarParserDescendenteRecusivo() {
         String programa = "public class z {\n"
                 + "    \n"
@@ -69,11 +71,11 @@ public class AnalizadorSintático {
                 + "    }\n";
         String[] Nterminais = gramatica.split("\n");
         for (int i = 0; i < Nterminais.length; i++) {
-            String terminal = Nterminais[i].split("->")[0];
+            String terminal = Nterminais[i].split("->")[0].trim();
             programa += gerarCodigoNTerm(terminal);
             String[] prods = Nterminais[i].split("->")[1].split("\\|");
             for (int j = 0; j < prods.length; j++) {
-                programa += gerarCodigoProd(prods[j], 0);
+                programa += gerarCodigoProd(prods[j].trim(), 0);
 
             }
             programa += "return \"\";\n}\n";
@@ -87,23 +89,25 @@ public class AnalizadorSintático {
                 + "String y = x;\n";
     }
 
-    public String gerarCodigoProd(String producao, int i) {
+    public String gerarCodigoProd(String producao2, int i) {
         String retorno = "";
-        if (i >= producao.length() || producao.equals("&")) {
+        if (i >= producao2.length() || producao2.equals("&")) {
             return retorno;
         }
-        if (Character.isDigit(producao.charAt(i)) || Character.isLowerCase(producao.charAt(i))) {
-            return retorno += "if(x.charAt(0) == '" + producao.charAt(i) + "'){ \n"
-                    + "    y=z.alex(x); \n"
-                    + "    " + gerarCodigoProd(producao, i + 1) + "\n"
-                    + "    return y;\n}\n";
+        String producao = producao2.split(" ")[i];
+        if (glc.getSimbolosTerminais().contains(producao)) {
+             retorno += "if(x.equals(" + producao + ")){ \n"
+                    + "    y=z.alex(x); \n";
+            for(int j = 1; i < producao2.split(" ").length;j++)   
         } else {
-            Set<String> first = firsts.get(producao.charAt(i) + "");
+            Set<String> first = glc.calcFirstProd(producao);
+            retorno += "if (";
+            String or = "";
             for (String s : first) {
-                retorno += "if(x.charAt(0) == '" + s.charAt(0) + "'){ \n"
-                        + "    y=z." + producao.charAt(i) + "(y);\n"
-                        + "    return y;\n}\n";
+                retorno += or + "x.equals(" + s + ")";
+                or = " || ";
             }
+            retorno+="){\n" + gerarCodigoProd(producao2, i+1)+ "\n}";
             return retorno;
         }
     }

@@ -24,14 +24,42 @@ public class GLC {
     private final Set<String> simbolosNaoTerminais = new HashSet<String>();
     private final Set<String> simbolosTerminais = new HashSet<String>();
     private final Map<String, List<String>> producoes = new HashMap<String, List<String>>();
-    
-    public int getNTerminaisCount(){
+
+    public Set<String> getSimbolosNaoTerminais() {
+        return simbolosNaoTerminais;
+    }
+
+    public Set<String> getSimbolosTerminais() {
+        return simbolosTerminais;
+    }
+
+    public Set<String> calcFirstProd(String prod) {
+        Map<String, Set<String>> conjuntosFirst = obterConjuntosFirst();
+        Set<String> retorno = new HashSet<String>();
+        String[] splited = prod.split(" ");
+        for (String string : splited) {
+            Set<String> get = conjuntosFirst.get(string);
+            if (get != null) {
+                retorno.addAll(get);
+                retorno.remove("&");
+                if (!get.contains("&")) {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        return retorno;
+    }
+
+    public int getNTerminaisCount() {
         return simbolosNaoTerminais.size();
     }
-    public int getTerminaisCount(){
+
+    public int getTerminaisCount() {
         return simbolosTerminais.size();
     }
-    
+
     public GLC(String glc) {
         String[] linhas = glc.split("\n");
         simboloInicial = linhas[0].split("->")[0].trim();
@@ -65,7 +93,7 @@ public class GLC {
             String[] simbolos = producao.split(" ");
             int i = 0;
             boolean contemSimbolo = true;
-            
+
             if (simbolo.equals(simbolos[0])) {
                 System.out.println("Possui recursão a esquerda direta com o símbolo " + simbolo);
                 return true;

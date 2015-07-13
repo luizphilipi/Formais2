@@ -46,6 +46,10 @@ public class Formais2 {
         String gramatica7 = "S -> a S | a B | d S\n"
                 + "B -> b B | b";
         GLC glc = new GLC(gramatica7);
+        
+        String gramatica8 = "S -> a S | b";
+        AnalizadorSintático a = new AnalizadorSintático(gramatica8);
+        
         System.out.println("First: " + glc.obterConjuntosFirst());
         System.out.println("Follow: " + glc.obterConjuntosFollow());
         System.out.println("Possui rec. esquerda: " + glc.possuiRecursaoAEsquerda());
