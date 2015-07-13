@@ -24,7 +24,14 @@ public class GLC {
     private final Set<String> simbolosNaoTerminais = new HashSet<String>();
     private final Set<String> simbolosTerminais = new HashSet<String>();
     private final Map<String, List<String>> producoes = new HashMap<String, List<String>>();
-
+    
+    public int getNTerminaisCount(){
+        return simbolosNaoTerminais.size();
+    }
+    public int getTerminaisCount(){
+        return simbolosTerminais.size();
+    }
+    
     public GLC(String glc) {
         String[] linhas = glc.split("\n");
         simboloInicial = linhas[0].split("->")[0].trim();
