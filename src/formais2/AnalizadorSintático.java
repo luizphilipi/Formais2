@@ -43,7 +43,6 @@ public class AnalizadorSintático {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void reconhecer(String aReconhecer) {
@@ -55,14 +54,19 @@ public class AnalizadorSintático {
     }
 
     public String gerarParserDescendenteRecusivo() {
-        String programa = "public class z {\n"
+        String programa = "public class z {\n\n"
+                + "    public static String sentenca;\n"
                 + "    \n"
-                + "    public static String alex(String a){\n"
-                + "        return a.substring(1, a.length());\n"
-                + "    }\n"
+                + "        public static String alex(String a) {\n"
+                + "	if(a.length() != 0) {\n"
+                + "	    sentenca = sentenca.substring(sentenca.indexOf(a + \" \") + a.length() + 1);\n"
+                + "	}\n"
+                + "	return sentenca.split(\" \")[0];\n"
+                + "    }\n\n"
                 + "public static void main(String[] args){\n"
-                + "        String x = args[0]+\"$\";\n"
-                + "        x = z.S(x);\n"
+                + "        z.sentenca = args[0]+\" $\";\n"
+                + "        String x = z.alex(\"\");"
+                + "        x = z." + glc.getSimboloInicial() + "(x);\n"
                 + "        if(x.equals(\"$\")){\n"
                 + "            System.out.println(\"reconhecida\");\n"
                 + "        }else{\n"
@@ -75,40 +79,55 @@ public class AnalizadorSintático {
             programa += gerarCodigoNTerm(terminal);
             String[] prods = Nterminais[i].split("->")[1].split("\\|");
             for (int j = 0; j < prods.length; j++) {
-                programa += gerarCodigoProd(prods[j].trim(), 0);
-
+                if (j != 0) {
+                    programa += "else ";
+                }
+                programa += gerarCodigoProd(prods[j].trim());
             }
-            programa += "return \"\";\n}\n";
+            programa += "return x;\n}\n";
         }
         programa += "}\n";
         return programa;
     }
 
     public String gerarCodigoNTerm(String nTerm) {
-        return "public static String " + nTerm + "(String x){\n"
-                + "String y = x;\n";
+        return "public static String " + nTerm + "(String x){\n";
     }
 
-    public String gerarCodigoProd(String producao2, int i) {
+    public String gerarCodigoProd(String producao2) {
         String retorno = "";
-        if (i >= producao2.length() || producao2.equals("&")) {
-            return retorno;
-        }
-        String producao = producao2.split(" ")[i];
-        if (glc.getSimbolosTerminais().contains(producao)) {
-             retorno += "if(x.equals(" + producao + ")){ \n"
-                    + "    y=z.alex(x); \n";
-            for(int j = 1; i < producao2.split(" ").length;j++)   
+        if (glc.getSimbolosTerminais().contains(producao2.split(" ")[0])) {
+            return geraRecursivoTerminal(producao2, 0);
         } else {
-            Set<String> first = glc.calcFirstProd(producao);
-            retorno += "if (";
+            Set<String> first = glc.calcFirstProd(producao2);
+            retorno += "// first de " + producao2 + "\nif (";
             String or = "";
             for (String s : first) {
-                retorno += or + "x.equals(" + s + ")";
+                retorno += or + "x.equals(\"" + s + "\")";
                 or = " || ";
             }
-            retorno+="){\n" + gerarCodigoProd(producao2, i+1)+ "\n}";
+            retorno += ") {\n" + geraRecursivoTerminal(producao2, 0) + "\n}";
             return retorno;
         }
+    }
+
+    public String geraRecursivoTerminal(String producao, int i) {
+        String[] splited = producao.split(" ");
+        String retorno = "";
+        if (splited.length > i) {
+            if (splited[i].equals("&")) {
+                return retorno;
+            }
+            if (glc.getSimbolosTerminais().contains(splited[i])) {
+                retorno += "if (x.equals(\"" + splited[i] + "\")) {\n";
+                retorno += "x = z.alex(x);";
+                retorno += geraRecursivoTerminal(producao, i + 1);
+                retorno += "\nreturn x;}\n";
+            } else {
+                retorno += "\nx = z." + splited[i] + "(x);\n";
+                retorno += geraRecursivoTerminal(producao, i + 1);
+            }
+        }
+        return retorno;
     }
 }

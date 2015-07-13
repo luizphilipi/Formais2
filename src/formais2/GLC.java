@@ -33,6 +33,10 @@ public class GLC {
         return simbolosTerminais;
     }
 
+    public String getSimboloInicial() {
+        return simboloInicial;
+    }
+
     public Set<String> calcFirstProd(String prod) {
         Map<String, Set<String>> conjuntosFirst = obterConjuntosFirst();
         Set<String> retorno = new HashSet<String>();
