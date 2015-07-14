@@ -1,5 +1,8 @@
 package formais2;
 
+
+import javax.swing.JOptionPane;
+
 public class z {
 
     public static String sentenca;
@@ -11,14 +14,19 @@ public class z {
         return sentenca.split(" ")[0];
     }
 
+    public static void error(String e) {
+        JOptionPane.showMessageDialog(null, e);
+        System.exit(0);
+    }
+
     public static void main(String[] args) {
-        z.sentenca = "( id + id ) + id" + " $";
+        z.sentenca = "id + id" + " $";
         String x = z.alex("");
         x = z.E(x);
         if (x.equals("$")) {
-            System.out.println("reconhecida");
+            z.error("reconhecida");
         } else {
-            System.err.println("errou");
+            z.error("errou");
         }
     }
 
@@ -29,8 +37,9 @@ public class z {
             x = z.T(x);
 
             x = z.E1(x);
-
+            return x;
         }
+        z.error("esperava-se ( ou id ");
         return x;
     }
 
@@ -54,8 +63,9 @@ public class z {
             x = z.F(x);
 
             x = z.T1(x);
-
+            return x;
         }
+        z.error("esperava-se ( ou id ");
         return x;
     }
 
@@ -86,6 +96,7 @@ public class z {
             x = z.alex(x);
             return x;
         }
+        z.error("esperava-se ) ou ( ou id  ");
         return x;
     }
 }

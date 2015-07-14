@@ -3,10 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
             <file>file:/home/gaulix/NetBeansProjects/Formais2/src/formais2/AnalizadorSintático.java</file>
             <file>file:/home/gaulix/NetBeansProjects/Formais2/src/formais2/Formais2.java</file>
             <file>file:/home/gaulix/NetBeansProjects/Formais2/src/formais2/z.java</file>
             <file>file:/home/gaulix/NetBeansProjects/Formais2/src/formais2/GLC.java</file>
+=======
+            <file>file:/home/pedro/formais_Trab2/Formais2/src/formais2/GLC.java</file>
+            <file>file:/home/pedro/formais_Trab2/Formais2/src/formais2/Formais2.java</file>
+            <file>file:/home/pedro/formais_Trab2/Formais2/src/formais2/AnalizadorSintático.java</file>
+            <file>file:/home/pedro/formais_Trab2/Formais2/src/formais2/z.java</file>
+>>>>>>> 7db92e4b3b8874ef53decfec2d3faf79049c9443
         </group>
     </open-files>
 </project-private>

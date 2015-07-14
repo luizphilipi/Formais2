@@ -22,6 +22,7 @@ import javax.swing.JOptionPane;
  */
 public class AnalizadorSintático {
 
+    private String errorBuffer = "";
     public String programa;
     private String gramatica;
     private GLC glc;
@@ -32,6 +33,7 @@ public class AnalizadorSintático {
         glc = new GLC(gramatica);
         firsts = glc.obterConjuntosFirst();
         programa = gerarParserDescendenteRecusivo();
+        programa += "}";
         FileWriter arquivo;
 
         try {
@@ -39,7 +41,6 @@ public class AnalizadorSintático {
             arquivo.write(programa);
             arquivo.close();
             Runtime.getRuntime().exec("javac z.java");
-            Runtime.getRuntime().exec("jar - cf z.jar z.java");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -47,14 +48,28 @@ public class AnalizadorSintático {
 
     public void reconhecer(String aReconhecer) {
         try {
-            Runtime.getRuntime().exec("java z " + aReconhecer);
+//            Runtime.getRuntime().exec("java z " + aReconhecer);
+            ProcessBuilder builder = new ProcessBuilder(
+                    "java", "z", aReconhecer);
+            builder.redirectErrorStream(true);
+            Process p = builder.start();
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line;
+            while (true) {
+                line = r.readLine();
+                if (line == null) {
+                    break;
+                }
+                System.out.println(line);
+            }
         } catch (IOException ex) {
             Logger.getLogger(AnalizadorSintático.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     public String gerarParserDescendenteRecusivo() {
-        String programa = "import javax.swing.JOptionPane;\n\n"
+        String programa = "import javax.swing.JOptionPane;\n"
                 + "public class z {\n\n"
                 + "    public static String sentenca;\n"
                 + "    \n"
@@ -64,14 +79,18 @@ public class AnalizadorSintático {
                 + "	}\n"
                 + "	return sentenca.split(\" \")[0];\n"
                 + "    }\n\n"
+                + "    public static void error(String e) {\n"
+                + "        JOptionPane.showMessageDialog(null, e);\n"
+                + "        System.exit(0);\n"
+                + "    }"
                 + "public static void main(String[] args){\n"
                 + "        z.sentenca = args[0]+\" $\";\n"
                 + "        String x = z.alex(\"\");"
                 + "        x = z." + glc.getSimboloInicial() + "(x);\n"
                 + "        if(x.equals(\"$\")){\n"
-                + "            JOptionPane.showMessageDialog(null, \"reconhecida\");\n"
+                + "            z.error(\"Sentença reconhecida\");\n"
                 + "        }else{\n"
-                + "            System.err.println(\"errou\");\n"
+                + "            z.error(\"Sentença não reconhecida\");\n"
                 + "        }\n"
                 + "    }\n";
         String[] Nterminais = gramatica.split("\n");
@@ -85,9 +104,17 @@ public class AnalizadorSintático {
                 }
                 programa += gerarCodigoProd(prods[j].trim());
             }
-            programa += "return x;\n}\n";
+            if (!glc.obterConjuntosFirst().get(terminal).contains("&")) {
+                if (errorBuffer.charAt(errorBuffer.length() - 2) == 'u') {
+                    errorBuffer = errorBuffer.substring(0, errorBuffer.length() - 3);
+                }
+                programa += "z.error(\"esperava-se " + errorBuffer + " \");\nreturn x;\n}";
+            } else {
+                programa += "return x;\n}";
+            }
+            errorBuffer = "";
         }
-        programa += "}\n";
+        // programa += "return x;\n}\n";
         return programa;
     }
 
@@ -103,11 +130,14 @@ public class AnalizadorSintático {
             Set<String> first = glc.calcFirstProd(producao2);
             retorno += "// first de " + producao2 + "\nif (";
             String or = "";
+            String ou = "";
             for (String s : first) {
                 retorno += or + "x.equals(\"" + s + "\")";
                 or = " || ";
+                errorBuffer += ou + s;
+                ou = " ou ";
             }
-            retorno += ") {\n" + geraRecursivoTerminal(producao2, 0) + "\n}";
+            retorno += ") {\n" + geraRecursivoTerminal(producao2, 0) + "return x;" + "\n}";
             return retorno;
         }
     }
@@ -124,6 +154,7 @@ public class AnalizadorSintático {
                 retorno += "x = z.alex(x);";
                 retorno += geraRecursivoTerminal(producao, i + 1);
                 retorno += "\nreturn x;}\n";
+                errorBuffer += splited[i] + " ou ";
             } else {
                 retorno += "\nx = z." + splited[i] + "(x);\n";
                 retorno += geraRecursivoTerminal(producao, i + 1);
