@@ -1,5 +1,8 @@
 package formais2;
 
+
+import javax.swing.JOptionPane;
+
 public class z {
 
     public static String sentenca;
@@ -12,13 +15,13 @@ public class z {
     }
 
     public static void main(String[] args) {
-        z.sentenca = "( id + id ) + id" + " $";
+        z.sentenca = args[0] + " $";
         String x = z.alex("");
         x = z.E(x);
         if (x.equals("$")) {
-            System.out.println("reconhecida");
+            JOptionPane.showMessageDialog(null, "reconhecida");
         } else {
-            System.err.println("errou");
+            JOptionPane.showMessageDialog(null, "errou");
         }
     }
 
@@ -29,8 +32,9 @@ public class z {
             x = z.T(x);
 
             x = z.E1(x);
-
+            return x;
         }
+        JOptionPane.showMessageDialog(null, "esperava-se ( ou id ");
         return x;
     }
 
@@ -43,8 +47,9 @@ public class z {
 
             return x;
         } else {
-            return x;
+            JOptionPane.showMessageDialog(null, "esperava-se +  ");
         }
+        return x;
     }
 
     public static String T(String x) {
@@ -54,8 +59,9 @@ public class z {
             x = z.F(x);
 
             x = z.T1(x);
-
+            return x;
         }
+        JOptionPane.showMessageDialog(null, "esperava-se ( ou id ");
         return x;
     }
 
@@ -68,8 +74,9 @@ public class z {
 
             return x;
         } else {
-            return x;
+            JOptionPane.showMessageDialog(null, "esperava-se *  ");
         }
+        return x;
     }
 
     public static String F(String x) {
@@ -86,6 +93,7 @@ public class z {
             x = z.alex(x);
             return x;
         }
+        JOptionPane.showMessageDialog(null, "esperava-se ) ou ( ou id  ");
         return x;
     }
 }
