@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 public class z {
 
     public static String sentenca;
+    public static String err = "";
 
     public static String alex(String a) {
         if (a.length() != 0) {
@@ -20,7 +21,7 @@ public class z {
     }
 
     public static void main(String[] args) {
-        z.sentenca = args[0] + " $";
+        z.sentenca = "id id" + " $";
         String x = z.alex("");
         x = z.E(x);
         if (x.equals("$")) {
@@ -91,7 +92,6 @@ public class z {
                 return x;
             }
 
-            return x;
         } else if (x.equals("id")) {
             x = z.alex(x);
             return x;

@@ -88,9 +88,6 @@ public class AnalizadorSintático {
                 + "        z.sentenca = args[0]+\" $\";\n"
                 + "        String x = z.alex(\"\");"
                 + "        x = z." + glc.getSimboloInicial() + "(x);\n"
-                + "        if( err.charAt(err.length()-2)=='u'){\n"
-                + "            err = err.substring(0,err.length()-3);                \n"
-                + "          }\n"
                 + "        if(x.equals(\"$\")){\n"
                 + "            z.error(\"Sentença reconhecida\");\n"
                 + "        }else{\n"
@@ -106,7 +103,7 @@ public class AnalizadorSintático {
                 if (j != 0) {
                     programa += "else ";
                 }
-                programa += gerarCodigoProd(prods[j].trim());
+                programa += gerarCodigoProd(prods[j].trim(),Nterminais[i].split("->")[0]);
             }
             if (!glc.obterConjuntosFirst().get(terminal).contains("&")) {
                 if (errorBuffer.charAt(errorBuffer.length() - 2) == 'u') {
@@ -126,10 +123,10 @@ public class AnalizadorSintático {
         return "public static String " + nTerm + "(String x){\n";
     }
 
-    public String gerarCodigoProd(String producao2) {
+    public String gerarCodigoProd(String producao2,String nTerm) {
         String retorno = "";
         if (glc.getSimbolosTerminais().contains(producao2.split(" ")[0])) {
-            return geraRecursivoTerminal(producao2, 0);
+            return geraRecursivoTerminal(producao2, 0,nTerm);
         } else {
             Set<String> first = glc.calcFirstProd(producao2);
             retorno += "// first de " + producao2 + "\nif (";
@@ -141,12 +138,12 @@ public class AnalizadorSintático {
                 errorBuffer += ou + s;
                 ou = " ou ";
             }
-            retorno += ") {\n" + geraRecursivoTerminal(producao2, 0) + "return x;" + "\n}";
+            retorno += ") {\n" + geraRecursivoTerminal(producao2, 0,nTerm) + "return x;" + "\n}";
             return retorno;
         }
     }
 
-    public String geraRecursivoTerminal(String producao, int i) {
+    public String geraRecursivoTerminal(String producao, int i, String nTerm) {
         String[] splited = producao.split(" ");
         String retorno = "";
         if (splited.length > i) {
@@ -156,12 +153,16 @@ public class AnalizadorSintático {
             if (glc.getSimbolosTerminais().contains(splited[i])) {
                 retorno += "if (x.equals(\"" + splited[i] + "\")) {\n";
                 retorno += "x = z.alex(x);";
-                retorno += geraRecursivoTerminal(producao, i + 1);
-                retorno += "\nreturn x;}\n";
+                retorno += geraRecursivoTerminal(producao, i + 1,nTerm);
+                if(producao.endsWith(splited[i]) || glc.nTerminalContemEpson(nTerm)){
+                retorno += "\nreturn x;\n}\n";
+                }else{
+                    retorno += "\n}\n";
+                }
                 errorBuffer += splited[i] + " ou ";
             } else {
                 retorno += "\nx = z." + splited[i] + "(x);\n";
-                retorno += geraRecursivoTerminal(producao, i + 1);
+                retorno += geraRecursivoTerminal(producao, i + 1,nTerm);
             }
         }
         return retorno;

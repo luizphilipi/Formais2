@@ -200,7 +200,14 @@ public class GLC {
             }
         }
     }
-
+    public boolean nTerminalContemEpson(String a){
+        List<String> get = producoes.get(a.trim());
+        for (String string : get) {
+            if(string.equals("&")){
+                return true;
+            }
+        }return false;
+    }
     public boolean isFatorada() {
         Map<String, Set<String>> conjuntosFirst = obterConjuntosFirst();
 
