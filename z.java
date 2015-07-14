@@ -2,6 +2,7 @@ import javax.swing.JOptionPane;
 public class z {
 
     public static String sentenca;
+    public static String err = "";
     
         public static String alex(String a) {
 	if(a.length() != 0) {
@@ -16,6 +17,9 @@ public class z {
     }public static void main(String[] args){
         z.sentenca = args[0]+" $";
         String x = z.alex("");        x = z.E(x);
+        if( err.charAt(err.length()-2)=='u'){
+            err = err.substring(0,err.length()-3);                
+          }
         if(x.equals("$")){
             z.error("Sentença reconhecida");
         }else{

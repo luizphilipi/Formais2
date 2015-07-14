@@ -20,13 +20,13 @@ public class z {
     }
 
     public static void main(String[] args) {
-        z.sentenca = "id + id" + " $";
+        z.sentenca = args[0] + " $";
         String x = z.alex("");
         x = z.E(x);
         if (x.equals("$")) {
-            z.error("reconhecida");
+            z.error("Sentença reconhecida");
         } else {
-            z.error("errou");
+            z.error("Sentença não reconhecida");
         }
     }
 
