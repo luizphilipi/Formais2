@@ -5,13 +5,16 @@
  */
 package formais2;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -37,9 +40,6 @@ public class AnalizadorSintático {
             arquivo.close();
             Runtime.getRuntime().exec("javac z.java");
             Runtime.getRuntime().exec("jar - cf z.jar z.java");
-
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,7 +54,8 @@ public class AnalizadorSintático {
     }
 
     public String gerarParserDescendenteRecusivo() {
-        String programa = "public class z {\n\n"
+        String programa = "import javax.swing.JOptionPane;\n\n"
+                + "public class z {\n\n"
                 + "    public static String sentenca;\n"
                 + "    \n"
                 + "        public static String alex(String a) {\n"
@@ -68,7 +69,7 @@ public class AnalizadorSintático {
                 + "        String x = z.alex(\"\");"
                 + "        x = z." + glc.getSimboloInicial() + "(x);\n"
                 + "        if(x.equals(\"$\")){\n"
-                + "            System.out.println(\"reconhecida\");\n"
+                + "            JOptionPane.showMessageDialog(null, \"reconhecida\");\n"
                 + "        }else{\n"
                 + "            System.err.println(\"errou\");\n"
                 + "        }\n"

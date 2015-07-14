@@ -5,6 +5,9 @@
  */
 package formais2;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author gaulix
@@ -59,7 +62,11 @@ public class Formais2 {
 
         System.out.println("First: " + glc.obterConjuntosFirst());
         System.out.println("Follow: " + glc.obterConjuntosFollow());
-        System.out.println("Possui rec. esquerda: " + glc.possuiRecursaoAEsquerda());
+        try {
+            System.out.println("Possui rec. esquerda: " + glc.possuiRecursaoAEsquerda());
+        } catch (Exception ex) {
+            Logger.getLogger(Formais2.class.getName()).log(Level.SEVERE, null, ex);
+        }
         System.out.println("Fatorada: " + glc.isFatorada());
     }
 
