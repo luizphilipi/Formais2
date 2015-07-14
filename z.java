@@ -1,10 +1,12 @@
+import javax.swing.JOptionPane;
+
 public class z {
 
     public static String sentenca;
     
         public static String alex(String a) {
 	if(a.length() != 0) {
-	    sentenca = sentenca.replaceFirst(a + " ", "");
+	    sentenca = sentenca.substring(sentenca.indexOf(a + " ") + a.length() + 1);
 	}
 	return sentenca.split(" ")[0];
     }
@@ -13,7 +15,7 @@ public static void main(String[] args){
         z.sentenca = args[0]+" $";
         String x = z.alex("");        x = z.E(x);
         if(x.equals("$")){
-            System.out.println("reconhecida");
+            JOptionPane.showMessageDialog(null, "reconhecida");
         }else{
             System.err.println("errou");
         }
